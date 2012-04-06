@@ -35,3 +35,15 @@ An example of a Python REPL session:
 
 It's not bug-free yet, the implementation itself is still a WIP and the whole of the spec example does not pass yet. But hey, that's what you get in a few late hours. Fixes coming, I promise.
 
+# Features
+
+Opcodes and valcodes are as declarative as possible using decorators, leaving the dispatcher as a quasi-one-liner and leveraging `dict` power instead of `if`/`elif`.
+
+Using functions/methods mean there are doctrings everywhere, hence documentation is both very local and as exhaustive as possible. Try `help(dcpu_16)`.
+
+You can use `cpu[]` to dispatch valcodes and get/set directly without having to handle a pointer structure.
+
+
+The CPU is a class, so you can instantiate a bunch of them. I might move memory outside the CPU so that it would be shared by CPU instances (SMP!)
+
+
