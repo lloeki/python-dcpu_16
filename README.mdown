@@ -10,13 +10,24 @@ Well, what's wrong with taking another stab at it? Besides, I personnally felt i
 
 It's meant to be used interactively via the Python REPL as well as programmatically. I might implement a specific ASM REPL at some point.
 
-An example:
+An example of a Python REPL session:
 
-    from dcpu_16 import CPU
-    c = CPU(debug=True)
-    c.load_m()               # loads demo program
-    c.step()                 # step by one instruction
-    c.pc = 0xA               # move to 'loopy thing'
-    c.step()
-    c.reset()                # reset cpu
-    c.clear()                # clear memory
+    >>> from dcpu_16 import CPU
+    >>> c = CPU(debug=True)
+    >>> c.load_m()                  # loads demo program
+    >>> c.step()                    # step by one instruction
+     << SET
+     << c.r[0x0]
+     << c.m[0x0001]
+     << A=0030 B=0000 C=0000 X=0000 Y=0000 Z=0000 I=0000 J=0000 PC=0002 SP=0000 O=0000
+    >>> c.pc = 0xA                  # jump to 'loopy thing'
+    >>> c.step()
+     << SET
+     << c.r[0x6]
+     << 0x000A
+     << A=0030 B=0000 C=0000 X=0000 Y=0000 Z=0000 I=000A J=0000 PC=000B SP=0000 O=0000
+    >>> c.reset()                   # reset CPU
+    >>> c.clear()                   # clear memory
+    >>> c.dump_r()                  # show CPU register state
+    'A=0000 B=0000 C=0000 X=0000 Y=0000 Z=0000 I=0000 J=0000 PC=0000 SP=0000 O=0000'
+
