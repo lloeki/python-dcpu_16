@@ -31,3 +31,7 @@ An example of a Python REPL session:
     >>> c.dump_r()                  # get CPU register state as string
     'A=0000 B=0000 C=0000 X=0000 Y=0000 Z=0000 I=0000 J=0000 PC=0000 SP=0000 O=0000'
 
+# What is the status of this?
+
+It's not bug-free yet, the implementation itself is still a WIP and the whole of the spec example does not pass yet. But hey, that's what you get in a few late hours. Fixes coming, I promise.
+
