@@ -28,6 +28,6 @@ An example of a Python REPL session:
      << A=0030 B=0000 C=0000 X=0000 Y=0000 Z=0000 I=000A J=0000 PC=000B SP=0000 O=0000
     >>> c.reset()                   # reset CPU
     >>> c.clear()                   # clear memory
-    >>> c.dump_r()                  # show CPU register state
+    >>> c.dump_r()                  # get CPU register state as string
     'A=0000 B=0000 C=0000 X=0000 Y=0000 Z=0000 I=0000 J=0000 PC=0000 SP=0000 O=0000'
 
