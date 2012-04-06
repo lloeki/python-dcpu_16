@@ -52,106 +52,106 @@ def JSR(c, a):
 @opcode(0x1)
 def SET(c, a, b):
     """sets a to b"""
-    c[a] = c[b]
+    a.set(b())
 
 @opcode(0x2)
 def ADD(c, a, b):
     """sets a to a+b, sets O to 0x0001 if there's an overflow"""
-    res = (c[a] + c[b])
+    res = (a() + b())
     if res > wmask:
         c.o = 0x0001
     res = res & wmask
-    c[a] = res
+    a.set(res)
 
 @opcode(0x3)
 def SUB(c, a, b):
     """sets a to a-b, sets O to 0xFFFF if there's an underflow"""
-    res = (c[a] - c[b])
+    res = (a() - b())
     if res & (wmask+1):
         c.o = 0xFFFF
     res = res & wmask
-    c[a] = res
+    a.set(res)
 
 @opcode(0x4)
 def MUL(c, a, b):
     """sets a to a*b, sets O to ((a*b)>>16)&0xFFFF"""
-    res = (c[a] * c[b])
-    c.o = ((c[a] * c[b]) >> w) & wmask
+    res = (a() * b())
+    c.o = ((a() * b()) >> w) & wmask
     res = res & wmask
-    c[a] = res
+    a.set(res)
 
 @opcode(0x5)
 def DIV(c, a, b):
     """sets a to a/b, sets O to ((a<<16)/b)&0xFFFF"""
-    res = c[a] / c[b]
-    c.o = ((c[a] << w) / c[b]) & wmask
-    c[a] = res
+    res = a() / b()
+    c.o = ((a() << w) / b()) & wmask
+    a.set(res)
 
 @opcode(0x6)
 def MOD(c, a, b):
     """sets a to a%b. if b==0, sets a to 0 instead"""
-    if c[b]==0:
+    if b()==0:
         res = 0
     else:
-        res = c[a] % c[b]
-    c[a] = res
+        res = a() % b()
+    a.set(res)
 
 @opcode(0x7)
 def SHL(c, a, b):
     """sets a to a<<b. sets O to ((a<<b)>>16)&0xFFFF"""
-    res = (c[a] << c[b])
-    c.o = ((c[a] << c[b]) >> w) & wmask
+    res = (a() << b())
+    c.o = ((a() << b()) >> w) & wmask
     res = res & wmask
-    c[a] = res
+    a.set(res)
 
 @opcode(0x8)
 def SHR(c, a, b):
     """sets a to a>>b. sets O to ((a>>16)>>b)&0xFFFF"""
-    res = (c[a] >> c[b])
-    c.o = ((c[a] >> w) >> c[b]) & wmask
+    res = (a() >> b())
+    c.o = ((a() >> w) >> b()) & wmask
     res = res & wmask
-    c[a] = res
+    a.set(res)
 
 @opcode(0x9)
 def AND(c, a, b):
     """sets a to a&b"""
-    res = c[a] & c[b]
-    c[a] = res
+    res = a() & b()
+    a.set(res)
 
 @opcode(0xA)
 def BOR(c, a, b):
     """sets a to a|b"""
-    res = c[a] | c[b]
-    c[a] = res
+    res = a() | b()
+    a.set(res)
 
 @opcode(0xB)
 def XOR(c, a, b):
     """sets a to a^b"""
-    res = c[a] ^ c[b]
-    c[a] = res
+    res = a() ^ b()
+    a.set(res)
 
 @opcode(0xC)
 def IFE(c, a, b):
     """performs next instruction only if a==b"""
-    if c[a] == c[b]:
+    if a() == b():
         c.skip = True
 
 @opcode(0xD)
 def IFN(c, a, b):
     """performs next instruction only if a!=b"""
-    if c[a] != c[b]:
+    if a() != b():
         c.skip = True
 
 @opcode(0xE)
 def IFG(c, a, b):
     """performs next instruction only if a>b"""
-    if c[a] > c[b]:
+    if a() > b():
         c.skip = True
 
 @opcode(0xF)
 def IFB(c, a, b):
     """performs next instruction only if (a&b)!=0"""
-    if (c[a] & c[b]) != 0:
+    if (a() & b()) != 0:
         c.skip = True
 
 
@@ -324,8 +324,8 @@ class CPU(object):
             log(op.__name__)
         except KeyError:
             raise Exception('Invalid opcode %01X at PC=%04X' % (opcode, c.pc))
-        a = word >>  4 & 0x3F
-        b = word >> 10 & 0x3F
+        a = c._pointer(word >>  4 & 0x3F)
+        b = c._pointer(word >> 10 & 0x3F)
         if c.skip:
             c.skip = False
         else:
