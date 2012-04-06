@@ -182,7 +182,7 @@ def pointerize(f):
 @pointerize
 def register(c, code):
     """register"""
-    v = "c.r[%r]" % code
+    v = "c.r[0x%01X]" % code
     log(v)
     return v
 
@@ -190,7 +190,7 @@ def register(c, code):
 @pointerize
 def register_value(c, code):
     """[register]"""
-    v = "c.m[c.r[%r-0x07]]" % code
+    v = "c.m[c.r[0x%01X]]" % (code-0x07)
     log(v)
     return v
 
@@ -198,7 +198,7 @@ def register_value(c, code):
 @pointerize
 def next_word_plus_register_value(c, code):
     """[next word + register]"""
-    v = "c.m[%r + %r-0x0f]" % (c.m[c.pc], code)
+    v = "c.m[0x%04X + 0x%01X]" % (c.m[c.pc], code-0x0F)
     log(v)
     c.pc += 1
     return v
@@ -207,7 +207,7 @@ def next_word_plus_register_value(c, code):
 @pointerize
 def pop(c):
     """POP / [SP++]"""
-    v = "c.m[%r]" % c.sp
+    v = "c.m[0x%04X]" % c.sp
     log(v)
     c.sp += 1
     return v
@@ -216,7 +216,7 @@ def pop(c):
 @pointerize
 def peek(c):
     """PEEK / [SP]"""
-    v = "c.m[%r]" % c.sp
+    v = "c.m[0x%04X]" % c.sp
     log(v)
     return v
 
@@ -225,7 +225,7 @@ def peek(c):
 def push(c):
     """PUSH / [--SP]"""
     c.sp -= 1
-    v = "c.m[%r]" % c.sp
+    v = "c.m[0x%04X]" % c.sp
     log(v)
     return v
 
@@ -257,7 +257,7 @@ def overflow(c):
 @pointerize
 def next_word_value(c):
     """[next_word]"""
-    v = "c.m[%r]" % c.m[c.pc]
+    v = "c.m[0x%04X]" % c.m[c.pc]
     c.pc += 1
     log(v)
     return v
@@ -266,7 +266,7 @@ def next_word_value(c):
 @pointerize
 def next_word(c):
     """next_word (literal)"""
-    v = "c.m[%r]" % c.pc
+    v = "c.m[0x%04X]" % c.pc
     c.pc += 1
     log(v)
     return v
@@ -275,7 +275,7 @@ def next_word(c):
 @pointerize
 def literal(c, code):
     """literal value 0x00-0x1F (literal)"""
-    v = "%r" % (code - 0x20)
+    v = "0x%04X" % (code - 0x20)
     log(v)
     return v
 
