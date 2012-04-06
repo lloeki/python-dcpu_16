@@ -1,0 +1,22 @@
+# What is this?
+
+A DCPU_16 implementation in Python. See [the spec](http://0x10c.com/doc/dcpu-16.txt)
+
+# But what's the goal of this? There's another one already!
+
+Well, what's wrong with taking another stab at it? Besides, I personnally felt it was too C-ish, and not pythonic enough (whatever that means). I wanted to revive whatever low-level (admittedly limited) ASM knowledge I had (from 6800/68000) and sharpen my Python-fu. The spirit of the thing is to be educative for everyone (including me).
+
+# How do I use this?
+
+It's meant to be used interactively via the Python REPL as well as programmatically. I might implement a specific ASM REPL at some point.
+
+example:
+
+    from dcpu_16 import CPU
+    c = CPU(debug=True)
+    c.load_m()               # loads demo program
+    c.step()                 # step by one instruction
+    c.pc = 0xA               # move to 'loopy thing'
+    c.step()
+    c.reset()                # reset cpu
+    c.clear()                # clear memory
