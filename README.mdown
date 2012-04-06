@@ -1,10 +1,10 @@
 # What is this?
 
-A DCPU-16 implementation in Python. See [the spec](http://0x10c.com/doc/dcpu-16.txt).
+A DCPU-16 implementation in Python. See [the spec][0].
 
 # But what's the goal of this? There's another one already!
 
-Well, what's wrong with taking another stab at it? Besides, I personnally felt it was too C-ish, and not pythonic enough (whatever that means). I wanted to revive whatever low-level (admittedly limited) ASM knowledge I had (from 6800/68000) and sharpen my Python-fu. The spirit of the thing is to be educative for everyone (including me).
+Well, what's wrong with taking another stab at it? Besides, I personnally felt it was too C-ish, and not pythonic enough (whatever that means, but you should [read][0] [this][1]). I wanted to revive whatever low-level (admittedly limited) ASM knowledge I had (from 6800/68000) and sharpen my Python-fu. The spirit of the thing is to be educative for everyone (including me).
 
 # How do I use this?
 
@@ -46,4 +46,6 @@ You can use `cpu[]` to dispatch valcodes and get/set directly without having to 
 
 The CPU is a class, so you can instantiate a bunch of them. I might move memory outside the CPU so that it would be shared by CPU instances (SMP!)
 
-
+[0]: http://0x10c.com/doc/dcpu-16.txt
+[1]: http://www.dabeaz.com/generators/
+[2]: http://www.dabeaz.com/coroutines/
