@@ -1,62 +1,83 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset='utf-8'>
-    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <head>
+        <meta charset='utf-8'>
+        <meta http-equiv="X-UA-Compatible" content="chrome=1">
 
-    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen" />
-    <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen" />
-    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print" />
+        <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen" />
+        <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen" />
+        <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print" />
 
-    <title>Python DCPU-16 by lloeki</title>
-  </head>
+        <title>Python DCPU-16 by lloeki</title>
+    </head>
 
-  <body>
+    <body>
 
-    <header>
-      <div class="container">
-        <h1>Python DCPU-16</h1>
-        <h2>DCPU-16 implementation in Python</h2>
+        <header>
+        <div class="container">
+            <h1>Python DCPU-16</h1>
+            <h2>DCPU-16 implementation in Python</h2>
 
-        <section id="downloads">
-          <a href="https://github.com/lloeki/python-dcpu_16/zipball/master" class="btn">Download as .zip</a>
-          <a href="https://github.com/lloeki/python-dcpu_16/tarball/master" class="btn">Download as .tar.gz</a>
-          <a href="https://github.com/lloeki/python-dcpu_16" class="btn btn-github"><span class="icon"></span>View on GitHub</a>
-        </section>
-      </div>
-    </header>
+            <section id="downloads">
+            <a href="https://github.com/lloeki/python-dcpu_16/zipball/master" class="btn">Download as .zip</a>
+            <a href="https://github.com/lloeki/python-dcpu_16/tarball/master" class="btn">Download as .tar.gz</a>
+            <a href="https://github.com/lloeki/python-dcpu_16" class="btn btn-github"><span class="icon"></span>View on GitHub</a>
+            </section>
+        </div>
+        </header>
 
-    <div class="container">
-      <section id="main_content">
-        <h3>Welcome to GitHub Pages.</h3>
+        <div class="container">
+            <section id="main_content">
+            <h3>What is this?</h3>
 
-<p>This automatic page generator is the easiest way to create beautiful pages for all of your projects. Author your page content here using GitHub Flavored Markdown, select a template crafted by a designer, and publish. After your page is generated, you can check out the new branch:</p>
+            <p>A DCPU-16 implementation in Python. See <a href="http://0x10c.com/doc/dcpu-16.txt">the spec</a>.</p>
 
-<pre><code>$ cd your_repo_root/repo_name
-$ git fetch origin
-$ git checkout gh-pages
+            <h3>Goal</h3>
+
+            <p>Many high-level implementations looked like C-in-other-language, so let's have a pythonic enough (whatever that means, but you should <a href="http://www.dabeaz.com/generators/">read</a> <a href="http://www.dabeaz.com/coroutines/">this</a>) implementation. The spirit of the thing is to be educative for everyone.</p>
+
+            <h3>Usage</h3>
+
+            <p>It's meant to be used interactively via the Python REPL as well as programmatically. A specific ASM REPL might be implemented at some point.</p>
+
+            <p>An example of a Python REPL session:</p>
+
+<pre><code>&gt;&gt;&gt; from dcpu_16 import CPU, spec_demo
+&gt;&gt;&gt; c = CPU(debug=True)
+&gt;&gt;&gt; c.load_m(spec_demo)         # loads demo program
+&gt;&gt;&gt; c.step()                    # step by one instruction
+ &lt;&lt; SET
+ &lt;&lt; c.r[0x0]
+ &lt;&lt; c.m[0x0001]
+ &lt;&lt; A=0030 B=0000 C=0000 X=0000 Y=0000 Z=0000 I=0000 J=0000 PC=0002 SP=0000 O=0000
+&gt;&gt;&gt; c.pc = 0xA                  # jump to 'loopy thing'
+&gt;&gt;&gt; c.step()
+ &lt;&lt; SET
+ &lt;&lt; c.r[0x6]
+ &lt;&lt; 0x000A
+ &lt;&lt; A=0030 B=0000 C=0000 X=0000 Y=0000 Z=0000 I=000A J=0000 PC=000B SP=0000 O=0000
+&gt;&gt;&gt; c.reset()                   # reset CPU
+&gt;&gt;&gt; c.clear()                   # clear memory
+&gt;&gt;&gt; c.dump_r()                  # get CPU register state as string
+'A=0000 B=0000 C=0000 X=0000 Y=0000 Z=0000 I=0000 J=0000 PC=0000 SP=0000 O=0000'
 </code></pre>
 
-<p>If you're using the GitHub for Mac, simply sync your repository and you'll see the new branch.</p>
+            <h3>Status</h3>
 
-<h3>Designer Templates</h3>
+            <p>As of v1.0 the CPU implementation ought to be complete according to DCPU-16 spec v1.1.</p>
 
-<p>We've crafted some handsome templates for you to use. Go ahead and continue to layouts to browse through them. You can easily go back to edit your page before publishing. After publishing your page, you can revisit the page generator and switch to another theme. Your Page content will be preserved if it remained markdown format.</p>
+            <h3>Features</h3>
 
-<h3>Rather Drive Stick?</h3>
+            <p>Opcodes and valcodes are as declarative as possible using decorators, leaving the dispatcher as a quasi-one-liner and leveraging <code>dict</code> power instead of <code>if</code>/<code>elif</code>.</p>
 
-<p>If you prefer to not use the automatic generator, push a branch named <code>gh-pages</code> to your repository to create a page manually. In addition to supporting regular HTML content, GitHub Pages support Jekyll, a simple, blog aware static site generator written by our own Tom Preston-Werner. Jekyll makes it easy to create site-wide headers and footers without having to copy them across every page. It also offers intelligent blog support and other advanced templating features.</p>
+            <p>Using functions/methods mean there are doctrings everywhere, hence documentation is both very local and as exhaustive as possible. Try <code>help(dcpu_16)</code>.</p>
 
-<h3>Authors and Contributors</h3>
+            <p>You can use <code>cpu[]</code> to dispatch valcodes and get/set directly without having to handle a pointer structure.</p>
 
-<p>You can <a href="https://github.com/blog/821" class="user-mention">@mention</a> a GitHub username to generate a link to their profile. The resulting <code>&lt;a&gt;</code> element will link to the contributor's GitHub Profile. For example: In 2007, Chris Wanstrath (<a href="https://github.com/defunkt" class="user-mention">@defunkt</a>), PJ Hyett (<a href="https://github.com/pjhyett" class="user-mention">@pjhyett</a>), and Tom Preston-Werner (<a href="https://github.com/mojombo" class="user-mention">@mojombo</a>) founded GitHub.</p>
+            <p>The CPU is a class, so you can instantiate a bunch of them. I might move memory outside the CPU so that it would be shared by CPU instances (SMP!)</p>
+            </section>
+        </div>
 
-<h3>Support or Contact</h3>
 
-<p>Having trouble with Pages? Check out the documentation at <a href="http://help.github.com/pages">http://help.github.com/pages</a> or contact support@github.com and we’ll help you sort it out.</p>
-      </section>
-    </div>
-
-    
-  </body>
+    </body>
 </html>
