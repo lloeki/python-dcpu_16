@@ -367,18 +367,18 @@ class CPU(object):
 
 
     def _pointer(c, code):
-        """get pointer to value code"""
+        """get pointer to valcode"""
         try:
             return valcode_map[code](c)
         except KeyError:
-            raise Exception("Invalid value code")
+            raise Exception("Invalid valcode")
 
     def __getitem__(c, code):
-        """get pointer to value"""
+        """get value of valcode"""
         return c._pointer(code)()
 
     def __setitem__(c, code, value):
-        """set value at pointer"""
+        """set value at valcode"""
         c._pointer(code).set(value)
 
     def step(c):
