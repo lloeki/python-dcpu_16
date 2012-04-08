@@ -12,9 +12,9 @@ It's meant to be used interactively via the Python REPL as well as programmatica
 
 An example of a Python REPL session:
 
-    >>> from dcpu_16 import CPU
+    >>> from dcpu_16 import CPU, spec_demo
     >>> c = CPU(debug=True)
-    >>> c.load_m()                  # loads demo program
+    >>> c.load_m(spec_demo)         # loads demo program
     >>> c.step()                    # step by one instruction
      << SET
      << c.r[0x0]
