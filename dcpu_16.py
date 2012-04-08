@@ -384,19 +384,27 @@ class CPU(object):
     def step(c):
         """start handling [PC]"""
         word = c.m[c.pc]
-        opcode = word & 0xF
         c.pc = (c.pc + 1) & wmask
+        if (word & 0xF) > 0:
+            opcode = (word & 0xF,)
+            a = c._pointer(word >>  4 & 0x3F)
+            b = c._pointer(word >> 10 & 0x3F)
+            args = (a, b)
+        elif (word >> 4 & 0x3F) > 0:
+            opcode = (0x0, word >>  4 & 0x3F)
+            a = c._pointer(word >> 10 & 0x3F)
+            args = (a, )
+        else:
+            raise Exception('Invalid opcode %s at PC=%04X' % (["%02X"%x for x in opcode], c.pc))
         try:
-            op = opcode_map[(opcode,)]
+            op = opcode_map[opcode]
             if c.debug: log(op.__name__)
         except KeyError:
-            raise Exception('Invalid opcode %01X at PC=%04X' % (opcode, c.pc))
-        a = c._pointer(word >>  4 & 0x3F)
-        b = c._pointer(word >> 10 & 0x3F)
+            raise Exception('Invalid opcode %s at PC=%04X' % (["%02X"%x for x in opcode], c.pc))
         if c.skip:
             c.skip = False
         else:
-            op(c, a, b)
+            op(c, *args)
         if c.debug: log(c.dump_r())
 
     def dump_r(c):
