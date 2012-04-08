@@ -418,15 +418,9 @@ class CPU(object):
                   (c.r + [c.pc, c.sp, c.o])[i])
                 for i in range(11))
 
-    def load_m(c, io=None):
+    def load_m(c, io=None, data=None):
         """load data in memory"""
         # TODO: load from io object
-        data = [
-            0x7c01, 0x0030, 0x7de1, 0x1000, 0x0020, 0x7803, 0x1000, 0xc00d,
-            0x7dc1, 0x001a, 0xa861, 0x7c01, 0x2000, 0x2161, 0x2000, 0x8463,
-            0x806d, 0x7dc1, 0x000d, 0x9031, 0x7c10, 0x0018, 0x7dc1, 0x001a,
-            0x9037, 0x61c1, 0x7dc1, 0x001a, 0x0000, 0x0000, 0x0000, 0x0000,
-        ]
         for i in xrange(len(data)):
             c.m[i] = data[i]
 

@@ -232,7 +232,95 @@ class TestCPU(unittest.TestCase):
         for r in c.m:
             self.assertEqual(r, 0)
 
+class TestCPUWithPrograms(unittest.TestCase):
+    def setUP(self):
+        pass
+
+    def test_spec_demo(self):
+        c = CPU()
+        data = [
+            0x7c01, 0x0030, 0x7de1, 0x1000, 0x0020, 0x7803, 0x1000, 0xc00d,
+            0x7dc1, 0x001a, 0xa861, 0x7c01, 0x2000, 0x2161, 0x2000, 0x8463,
+            0x806d, 0x7dc1, 0x000d, 0x9031, 0x7c10, 0x0018, 0x7dc1, 0x001a,
+            0x9037, 0x61c1, 0x7dc1, 0x001a, 0x0000, 0x0000, 0x0000, 0x0000,
+        ]
+        c.load_m(data=data)
+
+        self.assertEqual(c.pc, 0)
+        c.step() # SET A, 0x30
+        self.assertEqual(c.a, 0x30)
+
+        self.assertEqual(c.pc, 2)
+        c.step() # SET [0x1000], 0x20
+        self.assertEqual(c.m[0x1000], 0x20)
+
+        self.assertEqual(c.pc, 5) 
+        c.step() # SUB A, [0x1000]
+        self.assertEqual(c.a, 0x10)
+
+        self.assertEqual(c.pc, 7)
+        c.step() # IFN A, 0x10
+        self.assertEqual(c.pc, 8)
+        self.assertEqual(c.skip, True)
+
+        c.step() # skip SET PC, crash
+        self.assertEqual(c.skip, False)
+
+        self.assertEqual(c.pc, 10)
+        c.step() # SET I, 10
+        self.assertEqual(c.i, 0x0A)
+
+        self.assertEqual(c.pc, 11)
+        c.step() # SET A, 0x2000
+        self.assertEqual(c.a, 0x2000)
+
+        for i in range(10, 0, -1):
+            self.assertEqual(c.pc, 13)
+            c.step() # SET [0x2000+I], [A]
+            self.assertEqual(c.m[0x2000+i], 0x0)
+
+            self.assertEqual(c.pc, 15)
+            c.step() # SUB I, 1
+            self.assertEqual(c.i, i-1)
+
+            self.assertEqual(c.pc, 16)
+            c.step() # IFN I, 0
+            self.assertEqual(c.skip, i-1==0)
+
+            self.assertEqual(c.pc, 17)
+            c.step() # SET PC, loop (with skip if c.i==0)
+
+        self.assertEqual(c.pc, 19)
+        c.step() # SET X, 0x4
+        self.assertEqual(c.x, 0x4)
+
+        self.assertEqual(c.pc, 20)
+        c.step() # JSR testsub
+        self.assertEqual(c.sp, 0xFFFF)
+        self.assertEqual(c.m[0xFFFF], 22)
+
+        self.assertEqual(c.pc, 24)
+        c.step() # SHL X, 4
+        self.assertEqual(c.x, 0x40)
+
+        self.assertEqual(c.pc, 25)
+        c.step() # SET PC, POP
+
+        self.assertEqual(c.pc, 22)
+        c.step() # SET PC, crash
+
+        self.assertEqual(c.pc, 26)
+        c.step() # SET PC, crash
+
+        self.assertEqual(c.pc, 26)
+        # endless loop
+
 
 if __name__ == '__main__':
-    suite = unittest.TestLoader().loadTestsFromNames(['test.TestInstructions', 'test.TestCPU'])
+    cases = [
+            'test.TestInstructions',
+            'test.TestCPU',
+            'test.TestCPUWithPrograms'
+            ]
+    suite = unittest.TestLoader().loadTestsFromNames(cases)
     unittest.TextTestRunner(verbosity=2).run(suite)
