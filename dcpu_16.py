@@ -7,7 +7,7 @@ def log(string):
 spec = '1.1'
 
 w = 16
-wmask = 2**w-1
+wmask = 2**w - 1
 
 literals = [l for l in xrange(0, 0x20)]
 
