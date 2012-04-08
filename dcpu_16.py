@@ -135,24 +135,32 @@ def XOR(c, a, b):
 def IFE(c, a, b):
     """performs next instruction only if a==b"""
     if a() == b():
+        c.skip = False
+    else:
         c.skip = True
 
 @opcode(0xD)
 def IFN(c, a, b):
     """performs next instruction only if a!=b"""
     if a() != b():
+        c.skip = False
+    else:
         c.skip = True
 
 @opcode(0xE)
 def IFG(c, a, b):
     """performs next instruction only if a>b"""
     if a() > b():
+        c.skip = False
+    else:
         c.skip = True
 
 @opcode(0xF)
 def IFB(c, a, b):
     """performs next instruction only if (a&b)!=0"""
     if (a() & b()) != 0:
+        c.skip = False
+    else:
         c.skip = True
 
 
