@@ -83,8 +83,8 @@ def MUL(c, a, b):
 @opcode(0x5)
 def DIV(c, a, b):
     """sets a to a/b, sets O to ((a<<16)/b)&0xFFFF"""
-    res = a() / b()
-    c.o = ((a() << w) / b()) & wmask
+    res = a() // b()
+    c.o = ((a() << w) // b()) & wmask
     a.set(res)
 
 @opcode(0x6)
