@@ -2,11 +2,11 @@
 
 A DCPU-16 implementation in Python. See [the spec][0].
 
-# What's the goal of this?
+# Goal
 
 Many high-level implementations looked like C-in-other-language, so let's have a pythonic enough (whatever that means, but you should [read][1] [this][2]) implementation. The spirit of the thing is to be educative for everyone.
 
-# How do I use this?
+# Usage
 
 It's meant to be used interactively via the Python REPL as well as programmatically. A specific ASM REPL might be implemented at some point.
 
@@ -31,7 +31,7 @@ An example of a Python REPL session:
     >>> c.dump_r()                  # get CPU register state as string
     'A=0000 B=0000 C=0000 X=0000 Y=0000 Z=0000 I=0000 J=0000 PC=0000 SP=0000 O=0000'
 
-# What is the status of this?
+# Status
 
 As of v1.0 the CPU implementation ought to be complete according to DCPU-16 spec v1.1.
 
