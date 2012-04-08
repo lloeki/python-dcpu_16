@@ -46,8 +46,9 @@ class valcode(object):
 @opcode(0x0, 0x01)
 def JSR(c, a):
     """pushes the address of the next instruction to the stack, then sets PC to a"""
-    #pushnext
-    c.pc = c[a]
+    c.sp = (c.sp - 1) & wmask
+    c.m[c.sp] = c.pc
+    c.pc = a()
 
 @opcode(0x1)
 def SET(c, a, b):
