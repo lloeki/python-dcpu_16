@@ -190,6 +190,7 @@ class TestInstructions(unittest.TestCase):
         self.assertEqual(c.sp, 0xFFFF)
         self.assertEqual(c.m[0xFFFF], 0xBEEF)
 
+
 class TestCPU(unittest.TestCase):
     """CPU behavior"""
 
