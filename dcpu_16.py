@@ -198,8 +198,8 @@ def register_value(c, code):
 @pointerize
 def next_word_plus_register_value(c, code):
     """[next word + register]"""
-    v = "c.m[0x%04X + 0x%01X]" % (c.m[c.pc], code-0x0F)
     c.pc += 1
+    v = "c.m[0x%04X + c.r[0x%01X]]" % (c.m[c.pc], code-0x0F)
     if c.debug: log(v)
     return v
 
