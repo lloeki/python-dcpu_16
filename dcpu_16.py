@@ -198,9 +198,9 @@ def register_value(c, code):
 @pointerize
 def next_word_plus_register_value(c, code):
     """[next word + register]"""
-    c.pc += 1
     v = "c.m[0x%04X + c.r[0x%01X]]" % (c.m[c.pc], code-0x0F)
     if c.debug: log(v)
+    c.pc = (c.pc + 1) & wmask
     return v
 
 @valcode(0x18)
@@ -208,8 +208,8 @@ def next_word_plus_register_value(c, code):
 def pop(c):
     """POP / [SP++]"""
     v = "c.m[0x%04X]" % c.sp
-    c.sp += 1
     if c.debug: log(v)
+    c.sp = (c.sp + 1) & wmask
     return v
 
 @valcode(0x19)
@@ -224,7 +224,7 @@ def peek(c):
 @pointerize
 def push(c):
     """PUSH / [--SP]"""
-    c.sp -= 1
+    c.sp = (c.sp - 1) & wmask
     v = "c.m[0x%04X]" % c.sp
     if c.debug: log(v)
     return v
@@ -258,7 +258,7 @@ def overflow(c):
 def next_word_value(c):
     """[next_word]"""
     v = "c.m[0x%04X]" % c.m[c.pc]
-    c.pc += 1
+    c.pc = (c.pc + 1) & wmask
     if c.debug: log(v)
     return v
 
@@ -267,7 +267,7 @@ def next_word_value(c):
 def next_word(c):
     """next_word (literal)"""
     v = "c.m[0x%04X]" % c.pc
-    c.pc += 1
+    c.pc = (c.pc + 1) & wmask
     if c.debug: log(v)
     return v
 
@@ -375,8 +375,8 @@ class CPU(object):
     def step(c):
         """start handling [PC]"""
         word = c.m[c.pc]
-        c.pc += 1
         opcode = word & 0xF
+        c.pc = (c.pc + 1) & wmask
         try:
             op = opcode_map[(opcode,)]
             if c.debug: log(op.__name__)
