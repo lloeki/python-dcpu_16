@@ -410,6 +410,7 @@ class CPU(object):
         if c.debug: log(c.dump_r())
 
     def run(c):
+        """step until PC is constant"""
         last_pc = 0xFFFF
         while c.pc != last_pc:
             last_pc = c.pc
