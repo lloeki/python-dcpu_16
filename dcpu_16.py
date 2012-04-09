@@ -297,9 +297,29 @@ def literal(c, code):
     return v
 
 
+class Memory(object):
+    """array of 16-bit words"""
+    def __init__(m, debug=False):
+        m.clear()
+
+    def clear(m):
+        """clear memory"""
+        # TODO: (addr, len) memory range to clear
+        m.w = [0 for _ in xrange(0, 2**w)]
+
+    def __getitem__(m, addr):
+        """get word at addr"""
+        return m.w[addr]
+
+    def __setitem__(m, addr, value):
+        """assignment truncates values to 16-bit words"""
+        # TODO: multi-word assignment starting at addr when value is list
+        m.w[addr] = value & wmask
+
 
 class CPU(object):
-    def __init__(c, debug=False):
+    def __init__(c, memory=Memory(), debug=False):
+        c.m = memory
         c.clear()
         c.reset()
         c.debug = debug
@@ -314,7 +334,7 @@ class CPU(object):
 
     def clear(c):
         """clear memory"""
-        c.m = [0 for _ in xrange(0, 2**w)]
+        c.m.clear()
 
     a = Register(0x0)
     b = Register(0x1)
