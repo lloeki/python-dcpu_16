@@ -404,6 +404,7 @@ class CPU(object):
             raise Exception('Invalid opcode %s at PC=%04X' % (["%02X"%x for x in opcode], c.pc))
         if c.skip:
             c.skip = False
+            if c.debug: log("Skipped")
         else:
             op(c, *args)
         if c.debug: log(c.dump_r())
