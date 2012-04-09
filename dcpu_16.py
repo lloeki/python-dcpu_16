@@ -11,8 +11,8 @@ wmask = 2**w - 1
 
 literals = [l for l in xrange(0, 0x20)]
 
-opcode_map = {}
-valcode_map = {}
+_opcode_map = {}
+_valcode_map = {}
 
 
 class opcode(object):
@@ -22,7 +22,12 @@ class opcode(object):
     def __call__(self, f):
         _opcode_f = f
         _opcode_f.opcode = self.opcode
-        opcode_map[self.opcode] = _opcode_f
+        if len(self.opcode) == 1:
+            _opcode_map[self.opcode[0]] = _opcode_f
+        else:
+            if not self.opcode[0] in _opcode_map.keys():
+                _opcode_map[self.opcode[0]] = {}
+            _opcode_map[self.opcode[0]][self.opcode[1]] = _opcode_f
         return _opcode_f
 
 
@@ -36,10 +41,10 @@ class valcode(object):
         try:
             for code in self.valcode:
                 # currify with (bound) code
-                valcode_map[code] = lambda c, code=code: _valcode_f(c, code)
-                valcode_map[code].__name__ = '%s(code=0x%02X)' % (_valcode_f.__name__, code)
+                _valcode_map[code] = lambda c, code=code: _valcode_f(c, code)
+                _valcode_map[code].__name__ = '%s(code=0x%02X)' % (_valcode_f.__name__, code)
         except TypeError:
-            valcode_map[self.valcode] = _valcode_f
+            _valcode_map[self.valcode] = _valcode_f
         return _valcode_f
 
 
@@ -365,12 +370,26 @@ class CPU(object):
         c.r[7] = val
 
     def _op(c, word):
-        """dispatch to op"""
+        """dispatch word to op and args"""
+        opcode   = word & 0xF
+        a_code = word >>  4 & 0x3F
+        b_code = word >> 10 & 0x3F
+        try:
+            op = _opcode_map[opcode]
+            try:
+                op = op[a_code]
+                args = (c._pointer(b_code),)
+            except TypeError:
+                args = (c._pointer(a_code),
+                        c._pointer(b_code))
+        except KeyError:
+            raise Exception('Invalid opcode %s at PC=%04X' % (["%02X"%x for x in opcode], c.pc))
+        return op, args
 
     def _pointer(c, code):
         """get pointer to valcode"""
         try:
-            return valcode_map[code](c)
+            return _valcode_map[code](c)
         except KeyError:
             raise Exception("Invalid valcode")
 
@@ -386,22 +405,7 @@ class CPU(object):
         """start handling [PC]"""
         word = c.m[c.pc]
         c.pc = (c.pc + 1) & wmask
-        if (word & 0xF) > 0:
-            opcode = (word & 0xF,)
-            a = c._pointer(word >>  4 & 0x3F)
-            b = c._pointer(word >> 10 & 0x3F)
-            args = (a, b)
-        elif (word >> 4 & 0x3F) > 0:
-            opcode = (0x0, word >>  4 & 0x3F)
-            a = c._pointer(word >> 10 & 0x3F)
-            args = (a, )
-        else:
-            raise Exception('Invalid opcode %s at PC=%04X' % (["%02X"%x for x in opcode], c.pc))
-        try:
-            op = opcode_map[opcode]
-            if c.debug: log(op.__name__)
-        except KeyError:
-            raise Exception('Invalid opcode %s at PC=%04X' % (["%02X"%x for x in opcode], c.pc))
+        op, args = c._op(word)
         if c.skip:
             c.skip = False
             if c.debug: log("Skipped")
