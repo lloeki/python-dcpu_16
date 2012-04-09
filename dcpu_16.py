@@ -378,10 +378,11 @@ class CPU(object):
             op = _opcode_map[opcode]
             try:
                 op = op[a_code]
-                args = (c._pointer(b_code),)
             except TypeError:
                 args = (c._pointer(a_code),
                         c._pointer(b_code))
+            else:
+                args = (c._pointer(b_code),)
         except KeyError:
             raise Exception('Invalid opcode %s at PC=%04X' % (["%02X"%x for x in opcode], c.pc))
         return op, args
