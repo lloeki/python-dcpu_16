@@ -49,18 +49,24 @@ class valcode(object):
 
 
 class Register(object):
-    def __init__(self, regcode):
+    def __init__(self, regcode=None):
         self.regcode = regcode
     def __get__(self, c, type=None):
-        return c.r[self.regcode]
+        if self.regcode is not None:
+            return c.r[self.regcode]
+        else:
+            return self.value
     def __set__(self, c, value):
-        c.r[self.regcode] = value & wmask
+        if self.regcode is not None:
+            c.r[self.regcode] = value & wmask
+        else:
+            self.value = value & wmask
 
 
 @opcode(0x0, 0x01)
 def JSR(c, a):
     """pushes the address of the next instruction to the stack, then sets PC to a"""
-    c.sp = (c.sp - 1) & wmask
+    c.sp -= 1
     c.m[c.sp] = c.pc
     c.pc = a()
 
@@ -220,7 +226,7 @@ def register_value(c, code):
 def next_word_plus_register_value(c, code):
     """[next word + register]"""
     v = "c.m[0x%04X + c.r[0x%01X]]" % (c.m[c.pc], code-0x0F)
-    c.pc = (c.pc + 1) & wmask
+    c.pc += 1
     return v
 
 @valcode(0x18)
@@ -228,7 +234,7 @@ def next_word_plus_register_value(c, code):
 def pop(c):
     """POP / [SP++]"""
     v = "c.m[0x%04X]" % c.sp
-    c.sp = (c.sp + 1) & wmask
+    c.sp += 1
     return v
 
 @valcode(0x19)
@@ -242,7 +248,7 @@ def peek(c):
 @pointerize
 def push(c):
     """PUSH / [--SP]"""
-    c.sp = (c.sp - 1) & wmask
+    c.sp -= 1
     v = "c.m[0x%04X]" % c.sp
     return v
 
@@ -272,7 +278,7 @@ def overflow(c):
 def next_word_value(c):
     """[next_word]"""
     v = "c.m[0x%04X]" % c.m[c.pc]
-    c.pc = (c.pc + 1) & wmask
+    c.pc += 1
     return v
 
 @valcode(0x1F)
@@ -280,7 +286,7 @@ def next_word_value(c):
 def next_word(c):
     """next_word (literal)"""
     v = "c.m[0x%04X]" % c.pc
-    c.pc = (c.pc + 1) & wmask
+    c.pc += 1
     return v
 
 @valcode(range(0x20, 0x40))
@@ -318,6 +324,9 @@ class CPU(object):
     z = Register(0x5)
     i = Register(0x6)
     j = Register(0x7)
+    pc = Register()
+    sp = Register()
+    o = Register()
 
     def _op(c, word):
         """dispatch word to op and args"""
@@ -358,7 +367,7 @@ class CPU(object):
     def step(c):
         """start handling [PC]"""
         word = c.m[c.pc]
-        c.pc = (c.pc + 1) & wmask
+        c.pc += 1
         op, args = c._op(word)
         if c.skip:
             c.skip = False
