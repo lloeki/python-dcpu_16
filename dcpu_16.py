@@ -409,6 +409,13 @@ class CPU(object):
             op(c, *args)
         if c.debug: log(c.dump_r())
 
+    def run(c):
+        last_pc = 0xFFFF
+        while c.pc != last_pc:
+            last_pc = c.pc
+            c.step()
+        log("Infinite loop")
+
     def dump_r(c):
         """human-readable register status"""
         return " ".join( "%s=%04X" %
