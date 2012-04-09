@@ -197,7 +197,6 @@ def pointerize(f):
 def register(c, code):
     """register"""
     v = "c.r[0x%01X]" % code
-    if c.debug: log(v)
     return v
 
 @valcode(range(0x08, 0x10))
@@ -205,7 +204,6 @@ def register(c, code):
 def register_value(c, code):
     """[register]"""
     v = "c.m[c.r[0x%01X]]" % (code-0x07)
-    if c.debug: log(v)
     return v
 
 @valcode(range(0x10, 0x18))
@@ -213,7 +211,6 @@ def register_value(c, code):
 def next_word_plus_register_value(c, code):
     """[next word + register]"""
     v = "c.m[0x%04X + c.r[0x%01X]]" % (c.m[c.pc], code-0x0F)
-    if c.debug: log(v)
     c.pc = (c.pc + 1) & wmask
     return v
 
@@ -222,7 +219,6 @@ def next_word_plus_register_value(c, code):
 def pop(c):
     """POP / [SP++]"""
     v = "c.m[0x%04X]" % c.sp
-    if c.debug: log(v)
     c.sp = (c.sp + 1) & wmask
     return v
 
@@ -231,7 +227,6 @@ def pop(c):
 def peek(c):
     """PEEK / [SP]"""
     v = "c.m[0x%04X]" % c.sp
-    if c.debug: log(v)
     return v
 
 @valcode(0x1A)
@@ -240,7 +235,6 @@ def push(c):
     """PUSH / [--SP]"""
     c.sp = (c.sp - 1) & wmask
     v = "c.m[0x%04X]" % c.sp
-    if c.debug: log(v)
     return v
 
 @valcode(0x1B)
@@ -248,7 +242,6 @@ def push(c):
 def stack_pointer(c):
     """stack pointer"""
     v = "c.sp"
-    if c.debug: log(v)
     return v
 
 @valcode(0x1C)
@@ -256,7 +249,6 @@ def stack_pointer(c):
 def program_counter(c):
     """program counter"""
     v = "c.pc"
-    if c.debug: log(v)
     return v
 
 @valcode(0x1D)
@@ -264,7 +256,6 @@ def program_counter(c):
 def overflow(c):
     """overflow"""
     v = "c.o"
-    if c.debug: log(v)
     return v
 
 @valcode(0x1E)
@@ -273,7 +264,6 @@ def next_word_value(c):
     """[next_word]"""
     v = "c.m[0x%04X]" % c.m[c.pc]
     c.pc = (c.pc + 1) & wmask
-    if c.debug: log(v)
     return v
 
 @valcode(0x1F)
@@ -282,7 +272,6 @@ def next_word(c):
     """next_word (literal)"""
     v = "c.m[0x%04X]" % c.pc
     c.pc = (c.pc + 1) & wmask
-    if c.debug: log(v)
     return v
 
 @valcode(range(0x20, 0x40))
@@ -290,7 +279,6 @@ def next_word(c):
 def literal(c, code):
     """literal value 0x00-0x1F (literal)"""
     v = "0x%04X" % (code - 0x20)
-    if c.debug: log(v)
     return v
 
 
@@ -383,6 +371,9 @@ class CPU(object):
                         c._pointer(b_code))
             else:
                 args = (c._pointer(b_code),)
+            finally:
+                if c.debug:
+                    log(' '.join([op.__name__] + [arg.codestr for arg in args]))
         except KeyError:
             raise Exception('Invalid opcode %s at PC=%04X' % (["%02X"%x for x in opcode], c.pc))
         return op, args
