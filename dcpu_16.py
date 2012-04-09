@@ -419,7 +419,7 @@ class CPU(object):
                   (c.r + [c.pc, c.sp, c.o])[i])
                 for i in range(11))
 
-    def load_m(c, io=None, data=None):
+    def load_m(c, data=None, io=None):
         """load data in memory"""
         # TODO: load from io object
         for i in xrange(len(data)):
