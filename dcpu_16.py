@@ -48,6 +48,15 @@ class valcode(object):
         return _valcode_f
 
 
+class Register(object):
+    def __init__(self, regcode):
+        self.regcode = regcode
+    def __get__(self, c, type=None):
+        return c.r[self.regcode]
+    def __set__(self, c, value):
+        c.r[self.regcode] = value & wmask
+
+
 @opcode(0x0, 0x01)
 def JSR(c, a):
     """pushes the address of the next instruction to the stack, then sets PC to a"""
@@ -301,61 +310,14 @@ class CPU(object):
         """clear memory"""
         c.m = [0 for _ in xrange(0, 2**w)]
 
-    @property
-    def a(c):
-        return c.r[0]
-    @a.setter
-    def a(c, val):
-        c.r[0] = val
-
-    @property
-    def b(c):
-        return c.r[1]
-    @b.setter
-    def b(c, val):
-        c.r[1] = val
-
-    @property
-    def c(c):
-        return c.r[2]
-    @c.setter
-    def c(c, val):
-        c.r[2] = val
-
-    @property
-    def x(c):
-        return c.r[3]
-    @x.setter
-    def x(c, val):
-        c.r[3] = val
-
-    @property
-    def y(c):
-        return c.r[4]
-    @y.setter
-    def y(c, val):
-        c.r[4] = val
-
-    @property
-    def z(c):
-        return c.r[5]
-    @z.setter
-    def z(c, val):
-        c.r[5] = val
-
-    @property
-    def i(c):
-        return c.r[6]
-    @i.setter
-    def i(c, val):
-        c.r[6] = val
-
-    @property
-    def j(c):
-        return c.r[7]
-    @j.setter
-    def j(c, val):
-        c.r[7] = val
+    a = Register(0x0)
+    b = Register(0x1)
+    c = Register(0x2)
+    x = Register(0x3)
+    y = Register(0x4)
+    z = Register(0x5)
+    i = Register(0x6)
+    j = Register(0x7)
 
     def _op(c, word):
         """dispatch word to op and args"""
