@@ -371,7 +371,7 @@ class CPU(object):
 
     def _op(c, word):
         """dispatch word to op and args"""
-        opcode   = word & 0xF
+        opcode = word & 0xF
         a_code = word >>  4 & 0x3F
         b_code = word >> 10 & 0x3F
         try:
