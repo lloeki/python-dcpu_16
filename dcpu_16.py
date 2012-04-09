@@ -1,21 +1,30 @@
+"""DCPU-16 implementation. (c) 2012, Loic Nageleisen
+
+Spec: http://0x10c.com/doc/dcpu-16.txt
+
+See LICENSE for licensing information.
+"""
+
+
 from __future__ import print_function, division
 
+
+# DCPU-16 spec version
+spec = '1.1'
+
+
+# log tool
 def log(string):
     print(" << %s" % string)
 
-#http://0x10c.com/doc/dcpu-16.txt
-spec = '1.1'
-
+# width constants
 w = 16
 wmask = 2**w - 1
 
-literals = [l for l in xrange(0, 0x20)]
 
 _opcode_map = {}
-_valcode_map = {}
-
-
 class opcode(object):
+    """Opcode decorator"""
     def __init__(self, *opcode):
         self.opcode = opcode
 
@@ -31,7 +40,9 @@ class opcode(object):
         return _opcode_f
 
 
+_valcode_map = {}
 class valcode(object):
+    """Valcode decorator"""
     def __init__(self, valcode):
         self.valcode = valcode
 
@@ -49,18 +60,44 @@ class valcode(object):
 
 
 class Register(object):
+    """Register descriptor"""
     def __init__(self, regcode=None):
         self.regcode = regcode
+
     def __get__(self, c, type=None):
         if self.regcode is not None:
             return c.r[self.regcode]
         else:
             return self.value
+
     def __set__(self, c, value):
         if self.regcode is not None:
             c.r[self.regcode] = value & wmask
         else:
             self.value = value & wmask
+
+def make_pointer(c, codestr):
+    """creates a pointer func that evaluates codestr"""
+    def getter(c=c):
+        return eval("%s" % codestr)
+    def setter(data, c=c):
+        exec("%s = %r" % (codestr, data)) in {}, {'c': c, 'data': data}
+    pointer     = getter
+    pointer.codestr = codestr
+    pointer.set = setter
+    return pointer
+
+def pointerize(f):
+    """wraps a function that generates a codestr to create a pointer"""
+    if f.func_code.co_argcount == 1:
+        ptrz = lambda c: make_pointer(c, f(c))
+    elif f.func_code.co_argcount == 2:
+        ptrz = lambda c, code: make_pointer(c, f(c, code))
+    else:
+        raise Exception('%s has too many arguments' % f.__name__)
+    ptrz.__name__ = 'ptr_to_%s' % f.__name__
+    ptrz.__doc__ = f.__doc__
+    return ptrz
 
 
 @opcode(0x0, 0x01)
@@ -184,29 +221,6 @@ def IFB(c, a, b):
         c.skip = True
 
 
-def make_pointer(c, codestr):
-    """creates a pointer func that evaluates codestr"""
-    def getter(c=c):
-        return eval("%s" % codestr)
-    def setter(data, c=c):
-        exec("%s = %r" % (codestr, data)) in {}, {'c': c, 'data': data}
-    pointer     = getter
-    pointer.codestr = codestr
-    pointer.set = setter
-    return pointer
-
-def pointerize(f):
-    """wraps a function that generates a codestr to create a pointer"""
-    if f.func_code.co_argcount == 1:
-        ptrz = lambda c: make_pointer(c, f(c))
-    elif f.func_code.co_argcount == 2:
-        ptrz = lambda c, code: make_pointer(c, f(c, code))
-    else:
-        raise Exception('%s has too many arguments' % f.__name__)
-    ptrz.__name__ = 'ptr_to_%s' % f.__name__
-    ptrz.__doc__ = f.__doc__
-    return ptrz
-
 @valcode(range(0x00, 0x08))
 @pointerize
 def register(c, code):
@@ -318,6 +332,7 @@ class Memory(object):
 
 
 class CPU(object):
+    """DCPU-16"""
     def __init__(c, memory=Memory(), debug=False):
         c.m = memory
         c.clear()
