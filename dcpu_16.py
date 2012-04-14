@@ -415,8 +415,10 @@ class CPU(object):
     def run(c):
         """step until PC is constant"""
         last_pc = 0xFFFF
-        while c.pc != last_pc:
+        last_sp = 0xFFFF
+        while c.pc != last_pc or c.sp != last_sp:
             last_pc = c.pc
+            last_sp = c.sp
             c.step()
         log("Infinite loop")
 
