@@ -334,6 +334,7 @@ class Memory(object):
 class CPU(object):
     """DCPU-16"""
     def __init__(c, memory=Memory(), debug=False):
+        """If you don't specify memory, CPUs will share the same, default memory object"""
         c.m = memory
         c.clear()
         c.reset()
