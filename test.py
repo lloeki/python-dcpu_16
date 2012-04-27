@@ -10,7 +10,7 @@ class TestInstructions(unittest.TestCase):
         pass
 
     def test_SET(self):
-        dcpu_16.SET.opcode = (0x1,)
+        self.assertEqual(dcpu_16.SET.opcode, (0x01,))
         c = CPU()
         c.a = 0x0
         c.b = 0x42
@@ -19,107 +19,161 @@ class TestInstructions(unittest.TestCase):
         self.assertEqual(c.b, 0x42)
 
     def test_ADD(self):
-        dcpu_16.SET.opcode = (0x2,)
+        self.assertEqual(dcpu_16.ADD.opcode, (0x02,))
         c = CPU()
         c.a = 0x17
         c.b = 0x42
         dcpu_16.ADD(c, c._pointer(0x0), c._pointer(0x1))
         self.assertEqual(c.a, 0x17+0x42)
         self.assertEqual(c.b, 0x42)
-        self.assertEqual(c.o, 0x0)
+        self.assertEqual(c.ex, 0x0)
 
     def test_SUB(self):
-        dcpu_16.SET.opcode = (0x3,)
+        self.assertEqual(dcpu_16.SUB.opcode, (0x03,))
         c = CPU()
         c.a = 0x42
         c.b = 0x17
         dcpu_16.SUB(c, c._pointer(0x0), c._pointer(0x1))
         self.assertEqual(c.a, 0x42-0x17)
         self.assertEqual(c.b, 0x17)
-        self.assertEqual(c.o, 0x0)
+        self.assertEqual(c.ex, 0x0)
 
     def test_MUL(self):
-        dcpu_16.SET.opcode = (0x4,)
+        self.assertEqual(dcpu_16.MUL.opcode, (0x04,))
         c = CPU()
         c.a = 0x17
         c.b = 0x42
         dcpu_16.MUL(c, c._pointer(0x0), c._pointer(0x1))
         self.assertEqual(c.a, 0x17*0x42)
         self.assertEqual(c.b, 0x42)
-        self.assertEqual(c.o, 0x0)
+        self.assertEqual(c.ex, 0x0)
+
+    def test_MLI(self):
+        self.assertEqual(dcpu_16.MLI.opcode, (0x05,))
+        c = CPU()
+        c.a = 0x17
+        c.b = 0x42
+        dcpu_16.MLI(c, c._pointer(0x0), c._pointer(0x1))
+        self.assertEqual(c.a, 0x17*0x42)
+        self.assertEqual(c.b, 0x42)
+        self.assertEqual(c.ex, 0x0)
 
     def test_DIV(self):
-        dcpu_16.SET.opcode = (0x5,)
+        self.assertEqual(dcpu_16.DIV.opcode, (0x06,))
         c = CPU()
         c.a = 0x17
         c.b = 0x42
         dcpu_16.DIV(c, c._pointer(0x0), c._pointer(0x1))
         self.assertEqual(c.a, 0x17/0x42)
         self.assertEqual(c.b, 0x42)
-        self.assertEqual(c.o, ((0x17<<16)/0x42)&0xFFFF)
+        self.assertEqual(c.ex, ((0x17<<16)/0x42)&0xFFFF)
+
+    def test_DVI(self):
+        self.assertEqual(dcpu_16.DVI.opcode, (0x07,))
+        c = CPU()
+        c.a = 0x17
+        c.b = 0x42
+        dcpu_16.DIV(c, c._pointer(0x0), c._pointer(0x1))
+        self.assertEqual(c.a, 0x17/0x42)
+        self.assertEqual(c.b, 0x42)
+        self.assertEqual(c.ex, ((0x17<<16)/0x42)&0xFFFF)
 
     def test_MOD(self):
-        dcpu_16.SET.opcode = (0x6,)
+        self.assertEqual(dcpu_16.MOD.opcode, (0x08,))
         c = CPU()
         c.a = 0x17
         c.b = 0x42
         dcpu_16.MOD(c, c._pointer(0x0), c._pointer(0x1))
         self.assertEqual(c.a, 0x17%0x42)
         self.assertEqual(c.b, 0x42)
-        self.assertEqual(c.o, 0x0)
+        self.assertEqual(c.ex, 0x0)
 
-    def test_SHL(self):
-        dcpu_16.SET.opcode = (0x7,)
-        c = CPU()
-        c.a = 0x17
-        c.b = 0x4
-        dcpu_16.SHL(c, c._pointer(0x0), c._pointer(0x1))
-        self.assertEqual(c.a, 0x17<<0x4 & dcpu_16.wmask)
-        self.assertEqual(c.b, 0x4)
-        self.assertEqual(c.o, 0x0)
-
-    def test_SHR(self):
-        dcpu_16.SET.opcode = (0x8,)
+    def test_MDI(self):
+        self.assertEqual(dcpu_16.MDI.opcode, (0x09,))
         c = CPU()
         c.a = 0x17
         c.b = 0x42
-        dcpu_16.SHR(c, c._pointer(0x0), c._pointer(0x1))
-        self.assertEqual(c.a, 0x17>>0x42)
+        dcpu_16.MOD(c, c._pointer(0x0), c._pointer(0x1))
+        self.assertEqual(c.a, 0x17%0x42)
         self.assertEqual(c.b, 0x42)
-        self.assertEqual(c.o, 0x0)
+        self.assertEqual(c.ex, 0x0)
 
     def test_AND(self):
-        dcpu_16.SET.opcode = (0x9,)
+        self.assertEqual(dcpu_16.AND.opcode, (0x0A,))
         c = CPU()
         c.a = 0x17
         c.b = 0x42
         dcpu_16.AND(c, c._pointer(0x0), c._pointer(0x1))
         self.assertEqual(c.a, 0x17&0x42)
         self.assertEqual(c.b, 0x42)
-        self.assertEqual(c.o, 0x0)
+        self.assertEqual(c.ex, 0x0)
 
     def test_BOR(self):
-        dcpu_16.SET.opcode = (0xA,)
+        self.assertEqual(dcpu_16.BOR.opcode, (0x0B,))
         c = CPU()
         c.a = 0x17
         c.b = 0x42
         dcpu_16.BOR(c, c._pointer(0x0), c._pointer(0x1))
         self.assertEqual(c.a, 0x17|0x42)
         self.assertEqual(c.b, 0x42)
-        self.assertEqual(c.o, 0x0)
+        self.assertEqual(c.ex, 0x0)
 
     def test_XOR(self):
-        dcpu_16.SET.opcode = (0xB,)
+        self.assertEqual(dcpu_16.XOR.opcode, (0x0C,))
         c = CPU()
         c.a = 0x17
         c.b = 0x42
         dcpu_16.XOR(c, c._pointer(0x0), c._pointer(0x1))
         self.assertEqual(c.a, 0x17^0x42)
         self.assertEqual(c.b, 0x42)
-        self.assertEqual(c.o, 0x0)
+        self.assertEqual(c.ex, 0x0)
+
+    def test_SHR(self):
+        self.assertEqual(dcpu_16.SHR.opcode, (0x0D,))
+        c = CPU()
+        c.a = 0x17
+        c.b = 0x42
+        dcpu_16.SHR(c, c._pointer(0x0), c._pointer(0x1))
+        self.assertEqual(c.a, 0x17>>0x42)
+        self.assertEqual(c.b, 0x42)
+        self.assertEqual(c.ex, 0x0)
+
+    def test_ASR(self):
+        self.assertEqual(dcpu_16.ASR.opcode, (0x0E,))
+        c = CPU()
+        c.a = 0x17
+        c.b = 0x42
+        dcpu_16.ASR(c, c._pointer(0x0), c._pointer(0x1))
+        self.assertEqual(c.a, 0x17>>0x42)
+        self.assertEqual(c.b, 0x42)
+        self.assertEqual(c.ex, 0x0)
+
+    def test_SHL(self):
+        self.assertEqual(dcpu_16.SHL.opcode, (0x0F,))
+        c = CPU()
+        c.a = 0x17
+        c.b = 0x4
+        dcpu_16.SHL(c, c._pointer(0x0), c._pointer(0x1))
+        self.assertEqual(c.a, 0x17<<0x4 & dcpu_16.wmask)
+        self.assertEqual(c.b, 0x4)
+        self.assertEqual(c.ex, 0x0)
+
+    def test_IFB(self):
+        self.assertEqual(dcpu_16.IFB.opcode, (0x10,))
+        c = CPU()
+
+        c.a = 0xF0F0
+        c.b = 0x0F0F
+        dcpu_16.IFB(c, c._pointer(0x0), c._pointer(0x1))
+        self.assertEqual(c.skip, True)
+
+        c.a = 0xF1F0
+        c.b = 0x0F0F
+        dcpu_16.IFB(c, c._pointer(0x0), c._pointer(0x1))
+        self.assertEqual(c.skip, False)
 
     def test_IFE(self):
-        dcpu_16.SET.opcode = (0xC,)
+        self.assertEqual(dcpu_16.IFE.opcode, (0x12,))
         c = CPU()
 
         c.a = 0x17
@@ -133,7 +187,7 @@ class TestInstructions(unittest.TestCase):
         self.assertEqual(c.skip, False)
 
     def test_IFN(self):
-        dcpu_16.SET.opcode = (0xD,)
+        self.assertEqual(dcpu_16.IFN.opcode, (0x13,))
         c = CPU()
 
         c.a = 0x17
@@ -147,7 +201,7 @@ class TestInstructions(unittest.TestCase):
         self.assertEqual(c.skip, True)
 
     def test_IFG(self):
-        dcpu_16.SET.opcode = (0xE,)
+        self.assertEqual(dcpu_16.IFG.opcode, (0x14,))
         c = CPU()
 
         c.a = 0x41
@@ -165,22 +219,8 @@ class TestInstructions(unittest.TestCase):
         dcpu_16.IFG(c, c._pointer(0x0), c._pointer(0x1))
         self.assertEqual(c.skip, False)
 
-    def test_IFB(self):
-        dcpu_16.SET.opcode = (0xF,)
-        c = CPU()
-
-        c.a = 0xF0F0
-        c.b = 0x0F0F
-        dcpu_16.IFB(c, c._pointer(0x0), c._pointer(0x1))
-        self.assertEqual(c.skip, True)
-
-        c.a = 0xF1F0
-        c.b = 0x0F0F
-        dcpu_16.IFB(c, c._pointer(0x0), c._pointer(0x1))
-        self.assertEqual(c.skip, False)
-
     def test_JSR(self):
-        dcpu_16.JSR.opcode = (0x0, 0x1)
+        self.assertEqual(dcpu_16.JSR.opcode, (0x00, 0x01))
         c = CPU()
 
         c.a = 0xDEAD
@@ -203,7 +243,7 @@ class TestCPU(unittest.TestCase):
         for r in c.r:
             self.assertEqual(r, 0)
         self.assertEqual(c.pc, 0)
-        self.assertEqual(c.o, 0)
+        self.assertEqual(c.ex, 0)
         self.assertEqual(c.sp, 0)
         self.assertEqual(c.skip, False)
         self.assertEqual(c.pc, 0)
@@ -219,7 +259,7 @@ class TestCPU(unittest.TestCase):
         for r in c.r:
             self.assertEqual(r, 0)
         self.assertEqual(c.pc, 0)
-        self.assertEqual(c.o, 0)
+        self.assertEqual(c.ex, 0)
         self.assertEqual(c.sp, 0)
         self.assertEqual(c.skip, False)
         self.assertEqual(c.pc, 0)
@@ -239,13 +279,7 @@ class TestCPUWithPrograms(unittest.TestCase):
 
     def test_spec_demo(self):
         c = CPU()
-        data = [
-            0x7c01, 0x0030, 0x7de1, 0x1000, 0x0020, 0x7803, 0x1000, 0xc00d,
-            0x7dc1, 0x001a, 0xa861, 0x7c01, 0x2000, 0x2161, 0x2000, 0x8463,
-            0x806d, 0x7dc1, 0x000d, 0x9031, 0x7c10, 0x0018, 0x7dc1, 0x001a,
-            0x9037, 0x61c1, 0x7dc1, 0x001a, 0x0000, 0x0000, 0x0000, 0x0000,
-        ]
-        c.load_m(data=data)
+        c.load_m(data=dcpu_16.spec_demo)
 
         self.assertEqual(c.pc, 0)
         c.step() # SET A, 0x30
