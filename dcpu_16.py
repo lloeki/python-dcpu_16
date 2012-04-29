@@ -1,6 +1,6 @@
 """DCPU-16 implementation. (c) 2012, Loic Nageleisen
 
-Spec: http://0x10c.com/doc/dcpu-16.txt
+Spec: http://dcpu.com/highnerd/dcpu16_1_5.txt
 
 See LICENSE for licensing information.
 """
