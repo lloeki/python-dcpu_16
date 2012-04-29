@@ -48,21 +48,27 @@ class opcode(object):
 
 
 _valcode_map = {}
+_valcode_a_map = {}
 class valcode(object):
     """Valcode decorator"""
-    def __init__(self, valcode):
+    def __init__(self, valcode, a=False):
         self.valcode = valcode
+        self.a = a
 
     def __call__(self, f):
         _valcode_f = f
         _valcode_f.valcode = self.valcode
+        if self.a:
+            valcode_map = _valcode_a_map
+        else:
+            valcode_map = _valcode_map
         try:
             for code in self.valcode:
                 # currify with (bound) code
-                _valcode_map[code] = lambda c, code=code: _valcode_f(c, code)
-                _valcode_map[code].__name__ = '%s(code=0x%02X)' % (_valcode_f.__name__, code)
+                valcode_map[code] = lambda c, code=code: _valcode_f(c, code)
+                valcode_map[code].__name__ = '%s(code=0x%02X)' % (_valcode_f.__name__, code)
         except TypeError:
-            _valcode_map[self.valcode] = _valcode_f
+            valcode_map[self.valcode] = _valcode_f
         return _valcode_f
 
 
@@ -368,16 +374,16 @@ def next_word_plus_register_value(c, code):
 
 @valcode(0x18)
 @pointerize
-def push_pop(c):
-    """(PUSH / [--SP]) if in b, or (POP / [SP++]) if in a"""
-    pass
 def push(c):
-    """[--SP] / PUSH"""
+    """[--SP] / PUSH if in b"""
     c.sp -= 1
     v = "c.m[0x%04X]" % c.sp
     return v
+
+@valcode(0x18, a=True)
+@pointerize
 def pop(c):
-    """[SP++] / POP"""
+    """[SP++] / POP if in a"""
     v = "c.m[0x%04X]" % c.sp
     c.sp += 1
     return v
@@ -432,7 +438,7 @@ def next_word(c):
     c.pc += 1
     return v
 
-@valcode(range(0x20, 0x40))
+@valcode(range(0x20, 0x40), a=True)
 @pointerize
 def literal(c, code):
     """literal value 0xFFFF-0x1E (-1..30) (literal) (only for a)"""
@@ -501,12 +507,12 @@ class CPU(object):
         try:
             op = _opcode_map[opcode]
             try:
-                op = op[a_code]
+                op = op[b_code]
             except TypeError:
                 args = (c._pointer(b_code),
-                        c._pointer(a_code))
+                        c._pointer(a_code, a=True))
             else:
-                args = (c._pointer(a_code),)
+                args = (c._pointer(a_code, a=True),)
             finally:
                 if c.debug:
                     log(' '.join([op.__name__] + [arg.codestr for arg in args]))
@@ -514,12 +520,19 @@ class CPU(object):
             raise Exception('Invalid opcode %s at PC=%04X' % (["%02X"%x for x in opcode], c.pc))
         return op, args
 
-    def _pointer(c, code):
+    def _pointer(c, code, a=False):
         """get pointer to valcode"""
         try:
-            return _valcode_map[code](c)
+            if a:
+                try: # a-only valcodes
+                    return _valcode_a_map[code](c)
+                except KeyError: # fallback to other values
+                    return _valcode_map[code](c)
+            else:
+                # no a-only values
+                return _valcode_map[code](c)
         except KeyError:
-            raise Exception("Invalid valcode")
+            raise Exception("Invalid valcode: 0x%02x" % code)
 
     def __getitem__(c, code):
         """get value of valcode"""
