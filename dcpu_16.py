@@ -579,9 +579,9 @@ spec_demo = [
     0x7c01, 0x0030,             #     SET A, 0x30
     0x7fc1, 0x1000, 0x0020,     #     SET [0x1000], 0x20
     0x7803, 0x1000,             #     SUB A, [0X1000]
-    0xc012, # 0xc013            #     IFE A, 0xF
+    0xc413,                     #     IFN A, 0x10
     0x7f81, 0x001a,             #         SET PC, crash
-    0x90c1, # 0xacc1            #     SET I, 10
+    0xacc1,                     #     SET I, 10
     0x7c01, 0x2000,             #     SET A, 0x2000
                                 # :loop
     0x22C1, 0x2000,             #     SET [I + 0x2000], [A]
